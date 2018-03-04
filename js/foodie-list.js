@@ -1,8 +1,8 @@
 "use strict";
+// REQUIRES
+// let citiesList = require("./city-list");
 
-console.log("test");
-
-// Joke/Punchline AJAX:
+// foodie stuff:
 
 function getData(file) {
     return $.ajax({
@@ -10,146 +10,129 @@ function getData(file) {
     });
 }
 
-getData("https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_joke")
-    .then((jokeArray) => {
-        console.log(jokeArray);
-
-        let joke = jokeArray.setup;
-        let jokePunchline = jokeArray.punchline;
-
-        console.log(joke);
-        console.log(jokePunchline);
-
-        // $( "div.demo-container" ).html(joke);
-
-
-        $("#joke").text(joke);
-        $("#punchline").text(jokePunchline).hide();
-        $("button").click(function(){
-        $("#punchline").text(jokePunchline).show();
-
+getData("/restaurants.json")
+    .then((restarauntArray) => {
+        let restaurantList = restarauntArray.restaurants;
+        let ratingArray = [];
+        let sortedByRating = ratingArray.sort(function(a, b) {
+            return a - b;
         });
 
+        function compare(a, b) {
+            const ratingA = a.my_rating;
+            const ratingB = b.my_rating;
+          
+            let comparison = 0;
+            if (ratingA < ratingB) {
+              comparison = 1;
+            } else if (ratingA > ratingB) {
+              comparison = -1;
+            }
+            return comparison;
+          }
 
-        // for (var i = 0; i < joke.length; i++) {
-        //     console.log(joke[i].setup);
-        // }
+        console.log("Restaraunt Object, sorted by ratings: ", restarauntArray.restaurants.sort(compare));
+        let restarauntByRatingsObj = restarauntArray.restaurants.sort(compare);
+        console.log(restarauntByRatingsObj); // <---- Array of objects
+        // Poor form AJAX request inside another .then -_____- Figure out how to modularize this....
 
-        // console.log(joke[0]);
-        // console.log(joke[0].setup);
-    });
-
-
-
-
-
-
-
-
-    // 1. Make an asynchronous GET request to the following URL: https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_joke. 
-    // 2. Console log the setup and punchline
-
-
-
-
-
-
-
-
-
-
-
-
-
-let restarauntRequest = new XMLHttpRequest();
-
-restarauntRequest.onreadystatechange = function() {
-    
-    if (this.readyState == 4 && this.status == 200) {
-        let restarauntArray = JSON.parse(this.responseText);
-        console.log(restarauntArray);
-
-        let restaurantList = restarauntArray.restaurants;
-
-        for (var i = 0; i < restaurantList.length; i++) {
-            console.log(restaurantList[i].restaurant);
+        function getCityListData(cityListFile) {
+            return $.ajax({
+                url: cityListFile
+            });
         }
 
-        console.log(restaurantList[0]);
-        console.log(restaurantList[0].restaurant);
-    }
-    else {
-        console.log("error");
-    }
-};
+        getCityListData("/cities.json")
+            .then((citiesArray) => {
+                console.log("test");
+                console.log(citiesArray.cities);
+
+
+                for (let i = 0; i < restarauntByRatingsObj.length; i++) {
+                    document.getElementById("restaraunts").innerHTML += `${i+1}. ${restarauntByRatingsObj[i].restaurant} <br>   `;
+                }
+
+                document.getElementById("citiesSelect").innerHTML += `<option value="all">All Cities</option>`;
+
+                for (let i = 0; i < citiesArray.cities.length; i++) {
+                    let cityNames = citiesArray.cities;
+                    console.log(citiesArray.cities[i].city);
+                    document.getElementById("citiesSelect").innerHTML += `<option value="${citiesArray.cities[i].id}">${citiesArray.cities[i].city}</option>`;
+                    document.getElementById("addRestarauntCity").innerHTML += `<option value="${citiesArray.cities[i].id}">${citiesArray.cities[i].city}</option>`;
+
+                }
+
+                let citySelectionIdValue = document.getElementsByTagName("option")[0].getAttribute("value");
+                var src = document.getElementById("homePic"); //sets home img container div to a varaiable.
+
+                $("#citiesSelect").change(function() {
+                    src.innerHTML = ``; //Eliminates home img tag
+                    let e = document.getElementById("citiesSelect");
+                    let citySelectionValue = e.options[e.selectedIndex].value;
+                    console.log(citySelectionValue);
+                    document.getElementById("restaraunts").innerHTML = ``;
+                    
+                    let dropDownSelection = restarauntByRatingsObj.filter(function(restarauntByRatingsObj) {
+                        return restarauntByRatingsObj.city_id === Number(citySelectionValue);
+                    });
+
+                    if (citySelectionValue === "all") {
+                        console.log("this works");
+                        
+                        for (let i = 0; i < restarauntByRatingsObj.length; i++) {
+                            document.getElementById("restaraunts").innerHTML += `${i+1}. ${restarauntByRatingsObj[i].restaurant} <br>   `;
+                        }
+
+                    }
+                    else {
+                        for (let i = 0; i < dropDownSelection.length; i++) {
+                            document.getElementById("restaraunts").innerHTML += `${i+1}. ${dropDownSelection[i].restaurant} <br>   `;
+                        }
+                    }
+
+                    if (Number(citySelectionValue) === 7) {
+                        src.innerHTML = `<img src="/imHome.jpg">`;
+                    }
+                });
+
+                //Add Restaraunt Functionality:
+
+                let restarauntToAdd = document.getElementById("addRestarauntNameInput");
+                let ratingToAdd = document.getElementById("addRatingInput");
+                let dateToAdd = document.getElementById("addDateVisitedInput");
+                let idToAdd = restarauntByRatingsObj.length + 1;
+
+                $("#submitAddRestarauntBtn").click(function(e){
+                    e.preventDefault();
+                    let citySelectionToAdd = document.getElementById("addRestarauntCity").options[document.getElementById("addRestarauntCity").selectedIndex];
+
+                    console.log(restarauntByRatingsObj);
+                    console.log(citySelectionToAdd.value);
+
+                    // create new object and push it onto restaraunts array
+
+                    let restarauntObjectToAdd = {
+                        id: idToAdd,
+                        restaurant: restarauntToAdd.value,
+                        city_id: Number(citySelectionToAdd.value),
+                        date_visited: dateToAdd.value,
+                        my_rating: Number(ratingToAdd.value)
+                    };
+
+                    restarauntByRatingsObj.push(restarauntObjectToAdd);
+                    restarauntByRatingsObj = restarauntByRatingsObj.sort(compare);
+                    document.getElementById("restaraunts").innerHTML = ``;
+
+                    for (let i = 0; i < restarauntByRatingsObj.length; i++) {
+                        document.getElementById("restaraunts").innerHTML += `${i+1}. ${restarauntByRatingsObj[i].restaurant} <br>   `;
+                    }
+                    document.getElementById("addRestarauntForm").reset();
+                });
+        });
+    });
+
+    
 
 
 
 
-
-
-
-// foodie stuff:
-
-// function getData(file) {
-//     return $.ajax({
-//         url: file
-//     });
-// }
-
-// getData("/restaurants.json")
-//     .then((restarauntArray) => {
-//         console.log(restarauntArray);
-
-//         let restaurantList = restarauntArray.restaurants;
-//         let ratingArray = [];
-//         for (var i = 0; i < restaurantList.length; i++) {
-//             console.log(restaurantList[i].restaurant);
-
-//             let restarauntNames = restaurantList[i].restaurant;
-//             let ratings = restaurantList[i].my_rating;
-
-//             // $("#restaraunts").text(restaurantList[i].restaurant);
-//             document.getElementById("restaraunts").innerHTML += `${restarauntNames} `;
-//             document.getElementById("my_rating").innerHTML += `${ratings} `;
-
-//             ratingArray[i] = restaurantList[i].my_rating;
-
-//         }
-//         console.log("Restaraunt Ratings" + ratingArray);
-
-//         let sorted = ratingArray.sort(function(a, b) {
-//             return a - b;
-
-
-//         });
-
-        
-//         console.log("sorted?" + sorted);
-
-//         console.log("Restaraunt Ratings" + ratingArray);
-
-
-
-
-
-
-//     });
-
-
-// // 
-
-
-
-// // $("#testID").hide();
-
-// // $test.hide();
-
-// console.log("testing now");
-
-
-
-// // restarauntRequest.open('GET', '/restaurants.json');
-// // restarauntRequest.send();
-
-// // console.log(restarauntRequest.responseText);
