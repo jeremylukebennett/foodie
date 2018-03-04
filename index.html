@@ -6,18 +6,31 @@
     <title>Foodie List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="css/styles.css" />
-    <!-- <script src="jquery-3.3.1.min.js"></script> -->
 </head>
 <body>
-    
 
-<p id="joke"></p>
-<button id="reveal">Reveal</button>
 
-<p id="punchline"></p>
+<div id="container">
+    <section id="sortedByRatingSection">
+        <h2>Restaraunts by Ratings:</h2>
+        <p id="restaraunts"></p>
+    </section> 
 
-    <!-- <p id="restaraunts"></p>
-    <p id="my_rating"></p> -->
+    <label>Select City:</label>
+    <select id="citiesSelect" name="citiesList" form="cityForm"></select>
+    <div id="homePic"></div>
+</div>
+    <section>
+        <form id="addRestarauntForm">
+            Add Restaraunt:<br>
+            <input type="text" name="restarauntName" placeholder="Name" id="addRestarauntNameInput"><br><br>
+            <input type="text" name="rating" placeholder="Rating (1-10)" id="addRatingInput"><br><br>
+            <input type="text" name="dateVisted" placeholder="Date visited (xx/xx/xx)" id="addDateVisitedInput"><br><br>
+            Select City:<br>
+            <select id="addRestarauntCity" name="addCitiesList" id="addCitySelection"></select>
+            <input type="submit" value="Add" id="submitAddRestarauntBtn">
+        </form>
+    </section>
 
 
 
@@ -26,6 +39,7 @@
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
     crossorigin="anonymous"></script>
     <script src="js/foodie-list.js"></script>
+    <script src="js/city-list.js"></script>
 
 </body>
 </html>

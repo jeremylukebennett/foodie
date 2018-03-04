@@ -1,3 +1,24 @@
 body {
     background-color: rgb(89, 89, 255);
 }
+
+#homePic {
+    margin: 2em 0 0 0;
+}
+
+#addRestarauntForm {
+    position: absolute;
+    right: 17em;
+    top: 3em;
+    border: solid black 3px;
+    padding: 3em;
+    border-radius: 5em;
+}
+
+#sortedByRatingSection {
+    padding: 0 0 0 2em;
+}
+
+#citiesSelect {
+    margin: 0 0 0 3em;
+}
